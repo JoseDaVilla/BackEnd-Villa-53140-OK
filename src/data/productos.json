@@ -1,0 +1,101 @@
+[
+    {
+        "id": 1,
+        "title": "Parlantes",
+        "description": "Sony",
+        "price": 7000,
+        "thumbnail": "https://img1.com",
+        "code": "12asd23",
+        "stock": 45
+    },
+    {
+        "id": 2,
+        "title": "Audifonos",
+        "description": "Logitec",
+        "price": 2000,
+        "thumbnail": "https://img2.com",
+        "code": "132atgs",
+        "stock": 23
+    },
+    {
+        "id": 3,
+        "title": "Teclado",
+        "description": "Logitec",
+        "price": 4000,
+        "thumbnail": "https://img3.com",
+        "code": "50masd2",
+        "stock": 5
+    },
+    {
+        "id": 4,
+        "title": "Parlantes",
+        "description": "Sony",
+        "price": 7000,
+        "thumbnail": "https://img1.com",
+        "code": "12asd2333",
+        "stock": 45
+    },
+    {
+        "id": 5,
+        "title": "Audifonos",
+        "description": "Logitec",
+        "price": 2000,
+        "thumbnail": "https://img2.com",
+        "code": "132312atgs",
+        "stock": 23
+    },
+    {
+        "id": 6,
+        "title": "Teclado",
+        "description": "Logitec",
+        "price": 4000,
+        "thumbnail": "https://img3.com",
+        "code": "50mas12312d2",
+        "stock": 5
+    },    {
+        "id": 7,
+        "title": "MousePad",
+        "description": "Redragon",
+        "price": 2000,
+        "thumbnail": "https://img7.com",
+        "code": "132asdatgs",
+        "stock": 23
+    },
+    {
+        "id": 8,
+        "title": "Teclado",
+        "description": "Asus",
+        "price": 4000,
+        "thumbnail": "https://img8.com",
+        "code": "50ma12sd2",
+        "stock": 5
+    },
+    {
+        "id": 9,
+        "title": "Parlantes",
+        "description": "Logitec",
+        "price": 7000,
+        "thumbnail": "https://img9.com",
+        "code": "1asorp333",
+        "stock": 45
+    },
+    {
+        "id": 10,
+        "title": "Camara",
+        "description": "Logitec",
+        "price": 2000,
+        "thumbnail": "https://img10.com",
+        "code": "508mqss",
+        "stock": 23
+    },
+    {
+        "id": 11,
+        "title": "Teclado",
+        "description": "Google",
+        "price": 4000,
+        "thumbnail": "https://img11.com",
+        "code": "0978k2",
+        "stock": 5
+    }
+
+]
