@@ -1,26 +1,21 @@
 
 
-const express = require('express');
-const ProductManager = require('./productManager');
+import express from "express";
+import products from "./routers/products.js"
+import carts from "./routers/carts.js"
+
 
 const app = express();
 const PORT = 3000;
 
-app.get('/products', async (req, res) => {
-    const {limit} = req.query;
-    console.log(limit)
-    const p = new ProductManager();
-    const productos = await p.getProducts(limit);
-    return res.json({ productos });
-});
+app.use(express.json())
+app.use(express.urlencoded({ extended: true}));
 
-app.get('/products/:pid',(req,res)=>{
-    const {pid} = req.params;
-    const p = new ProductManager();
-    const producto = p.getProductById(Number(pid));
-    console.log(pid)
-    return res.json({producto});
+app.get('/',(req,res)=>{
+    return res.send("Primera pre entrega");
 })
+app.use('/api/products' , products)
+app.use('/api/carts' , carts)
 
 app.listen(PORT, () => {
     console.log(`Servidor activo en el puerto ${PORT}`);
