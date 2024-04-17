@@ -6,12 +6,17 @@ class ProductManager {
     #products;
     #path;
     static idProducto = 0
+    static #instance;
 
 
 
     constructor() {
-        this.#path = './src/data/productos.json'
+        if(ProductManager.#instance)
+            return ProductManager.#instance;
+        this.#path = './src/data/productos.json';
         this.#products = this.#leerProductosInFile();
+
+        ProductManager.#instance = this;
     }
 
     #asignarIdProducto() {
@@ -45,7 +50,7 @@ class ProductManager {
         }
     }
 
-    addProduct(title, description, price, thumbnails = [], code, stock, category, status = true) {
+    addProduct({title, description, price, thumbnails = [], code, stock, category, status = true}) {
 
         let result = "Ocurrió un error!";
 
