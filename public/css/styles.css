@@ -2,8 +2,11 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 
 
+
 body{
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    min-height: 100vh;
+    
 }
 
 table {
@@ -62,6 +65,14 @@ form select {
 }
 
 #producto-form button {
+    padding: 10px 20px;
+    background-color: antiquewhite;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button {
     padding: 10px 20px;
     background-color: antiquewhite;
     border: none;

@@ -1,4 +1,9 @@
 const socket = io();
+let btnDeleteProduct = document.getElementById('delete-product-btn')
+
+btnDeleteProduct.addEventListener('click', ()=>{
+    socket.emit('deleteAllProducts')
+})
 
 socket.on ('productos', productos => {
     
@@ -9,7 +14,7 @@ socket.on ('productos', productos => {
     productos.forEach(producto => {
         const row = tbody.insertRow();
         row.innerHTML = `
-        <td>${producto.id} </td>
+        <td>${producto._id} </td>
         <td>${producto.title} </td>
         <td>${producto.description} </td>
         <td>${producto.price} </td>
@@ -18,7 +23,6 @@ socket.on ('productos', productos => {
         <td>${producto.category} </td>
         <td>${producto.status ? 'activo' : 'desactivado'} </td>
         <td>${producto.thumbnails.length > 0 ? producto.thumbnails[0] : 'No hay imagen'} </td>
-
         `;
     })
 
@@ -45,5 +49,5 @@ formulario.addEventListener('submit', function (event) {
     };
 
     socket.emit('agregarProducto', producto);
-    window.location.reload();
+
 })

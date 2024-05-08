@@ -1,46 +1,20 @@
 import {Router} from "express"
-import ProductManager from "../productManager.js";
+import ProductManager from "../dao/productManager.js";
+import { addProduct, deleteProduct, getProductById, getProducts, updateProduct } from "../dao/mongoProductManager.js";
 
 
 
 const router = Router()
 
-router.get('/', async (req, res) => {
-    const {limit} = req.query;
-    console.log(limit)
-    const p = new ProductManager();
-    const productos = await p.getProducts(limit);
-    return res.json({ productos });
-});
+router.get('/', getProducts);
 
-router.get('/:pid',(req,res)=>{
-    const {pid} = req.params;
-    const p = new ProductManager();
-    const producto = p.getProductById(Number(pid));
-    console.log(pid)
-    return res.json({producto});
-})
+router.get('/:pid', getProductById)
 
-router.post('/', (req,res)=>{
-    // const {title, description, price, thumbnails, code, stock, category, status} = ;
-    const p = new ProductManager();
-    const result = p.addProduct({...req.body})
-    return res.json({result});
-});
+router.post('/', addProduct);
 
-router.put('/:pid', (req,res)=>{
-    const {pid} = req.params;
-    const p = new ProductManager();
-    const result = p.updateProduct(Number(pid), req.body)
-    return res.json({result});
-})
+router.put('/:pid', updateProduct)
 
-router.delete('/:pid', (req,res)=>{
-    const {pid} = req.params
-    const p = new ProductManager();
-    const result = p.deleteProduct(Number(pid), req.body)
-    return res.json({result});
-})
+router.delete('/:pid', deleteProduct)
 
 
 export default router
