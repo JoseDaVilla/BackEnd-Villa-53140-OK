@@ -1,77 +1,72 @@
-import { request,response } from "express";
+import { request, response } from "express";
 import { productModel } from "./models/products.js";
+import { addProductService, deleteProductService, getProductByIdService, getProductsService, updateProductService } from "../services/productsManagerDBService.js";
 
-export const getProducts = async(req=request, res = response)=>{
+export const getProducts = async (req = request, res = response) => {
     try {
-        const {limit} = req.query;
-        // const products= await productModel.find().limit(Number(limit));
-        // const total = await productModel.countDocuments();
-        //?  Para mejor optimización
+        const result = await  getProductsService({...req.query})   
+        return res.json( {result });
 
-        const [products, total] = await Promise.all([productModel.find().limit(Number(limit)), productModel.countDocuments()])
-        return res.json({total, products});
     } catch (error) {
-        console.log('getProducts => ', error)
-            return res.status(500).json({msg: 'Hablar con Admin '})
+        return res.status(500).json({ msg: 'Hablar con Admin ' })
     }
 }
 
-export const getProductById = async(req=request, res = response)=>{
+export const getProductById = async (req = request, res = response) => {
     try {
-        const{pid} = req.params;
-        const product= await productModel.find(pid);
-        if(!product)
-            return res.status(404).json({msg:`Producto con id ${pid} no existe`})
-        return res.json({product});
+        const { pid } = req.params;
+        const product = await getProductByIdService(pid)
+        
+        if (!product)
+            return res.status(404).json({ msg: `Producto con id ${pid} no existe` })
+        return res.json({ product });
     } catch (error) {
         console.log('getProductById => ', error)
-            return res.status(500).json({msg: 'Hablar con Admin '})
+        return res.status(500).json({ msg: 'Hablar con Admin ' })
     }
 }
 
-export const addProduct = async(req=request, res = response)=>{
+export const addProduct = async (req = request, res = response) => {
     try {
-        const {title, description, price, thumbnails, code, stock, category, status} = req.body;
+        const { title, description, price, code, stock, category,  } = req.body;
+
         
-        if (!title, !description, !price, !code, !stock,  !category)
-            return res.status (404).json({msg:'All parameters are required [title, description, price, code, stock, category]'});
+        if (!title, !description, !price, !code, !stock, !category)
+            return res.status(404).json({ msg: 'All parameters are required [title, description, price, code, stock, category]' });
 
-        const product = await productModel.create(req.body)
+        const product = await addProductService({...req.body})
 
-        return res.json({product});
+        return res.json({ product });
 
     } catch (error) {
-        console.log('addProduct => ', error)
-            return res.status(500).json({msg: 'Talk to an administrator'})
+        return res.status(500).json({ msg: 'Talk to an administrator' })
     }
 }
 
-export const updateProduct = async(req=request, res = response)=>{
+export const updateProduct = async (req = request, res = response) => {
     try {
-        const {pid}= req.params;
-        const {_id, ...rest} = req.body;
-        const product = await productModel.findByIdAndUpdate(pid, {...rest}, {new:true});
+        const { pid } = req.params;
+        const { _id, ...rest } = req.body;
+        const product = await updateProductService(pid, rest);
 
         if (product)
-            return res.json({msg: 'Product Updated', product});
-        return res.status(404).json({msg:`The product with id ${pid} could not be updated`})
+            return res.json({ msg: 'Product Updated', product });
+        return res.status(404).json({ msg: `The product with id ${pid} could not be updated` })
     } catch (error) {
-        console.log('updateProduct => ', error)
-            return res.status(500).json({msg: 'Talk to an administrator'})
+        return res.status(500).json({ msg: 'Talk to an administrator' })
     }
 }
 
-export const deleteProduct = async(req=request, res = response)=>{
+export const deleteProduct = async (req = request, res = response) => {
     try {
-        const {pid}= req.params;
-        const product = await productModel.findByIdAndDelete(pid);
-        
+        const { pid } = req.params;
+        const product = await deleteProductService(pid)
         if (product)
-            return res.json({msg: 'Product Deleted', product});
-        return res.status(404).json({msg:`The product with id ${pid} could not be deleted`})
+            return res.json({ msg: 'Product Deleted', product });
+        return res.status(404).json({ msg: `The product with id ${pid} could not be deleted` })
     } catch (error) {
         console.log('deleteProduct => ', error)
-            return res.status(500).json({msg: 'Talk to an administrator'})
+        return res.status(500).json({ msg: 'Talk to an administrator' })
     }
 }
 
