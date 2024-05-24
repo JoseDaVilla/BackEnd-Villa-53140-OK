@@ -4,16 +4,22 @@ import { Server } from 'socket.io';
 import productsRouter from "./routers/products.js";
 import cartsRouter from "./routers/carts.js";
 import views from "./routers/views.js";
+import sessionsRouter from "./routers/sessions.js"
 import __dirname from "./utils.js";
 import path from "path";
-// import ProductManager from "./dao/productManager.js";
+import sessions from 'express-session'
 import { dbConnection } from "./database/config.js";
 import { messageModel } from "./dao/models/messages.js";
 import { addProductService, getProductsService } from "./services/productsManagerDBService.js";
+import { auth } from "./middleware/auth.js";
+import { initPassport } from "./config/passport.config.js";
+import passport from "passport";
+
 
 // const p = new ProductManager(); 
 const app = express();
 const PORT = 3000;
+const URL_MONGO_DB = 'mongodb+srv://josedvilla18:ecommerce-villa@ecommerce.avwlkz3.mongodb.net/ecommerce'
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +29,18 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(express.static('public'));
 
+app.use(sessions({
+
+    secret: '22Dntoasm2',
+    resave: true,
+    saveUninitialized: true
+}))
+
+initPassport()
+app.use(passport.initialize())
+
+app.use(passport.session()) //? Only for sessions used
+
 // Configura el motor de vistas Handlebars.
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
@@ -30,8 +48,12 @@ app.set("views", path.join(__dirname, "views"));
 
 // Rutas para la API.
 app.use('/', views);
-app.use('/api/products', productsRouter);
-app.use('/api/carts', cartsRouter);
+app.use('/api/products',auth, productsRouter);
+app.use('/api/carts',auth, cartsRouter);
+
+
+app.use("/api/sessions", sessionsRouter)
+
 
 await dbConnection();
 

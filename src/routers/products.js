@@ -1,5 +1,5 @@
 import {Router} from "express"
-import ProductManager from "../dao/productManager.js";
+
 import { addProduct, deleteProduct, getProductById, getProducts, updateProduct } from "../dao/mongoProductManager.js";
 
 

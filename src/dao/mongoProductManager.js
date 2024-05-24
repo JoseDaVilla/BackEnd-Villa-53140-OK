@@ -8,7 +8,7 @@ export const getProducts = async (req = request, res = response) => {
         return res.json( {result });
 
     } catch (error) {
-        return res.status(500).json({ msg: 'Hablar con Admin ' })
+        // return res.status(500).json({ msg: 'Hablar con Admin ' })
     }
 }
 
