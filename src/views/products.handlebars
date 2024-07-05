@@ -1,86 +1,80 @@
 <div>
-    <h3>Lista de products: </h3>
+    <h3>Lista de productos:</h3>
 
-
-<table>
-    <thead>
-        <th>Título</th>
-        <th>Descripción</th>
-        <th>Precio </th>
-        <th>Código </th>
-        <th>Stock </th>
-        <th>Category </th>
-        <th>Status </th>
-        <th>Imagen </th>
-    </thead>
-    <tbody>
-        {{#each result.payload}}
-        <tr>
-            <td>{{this.title}} </td>
-            <td>{{this.description}} </td>
-            <td>{{this.price}} </td>
-            <td>{{this.code}} </td>
-            <td>{{this.stock}} </td>
-            <td>{{this.category}} </td>
-            <td>
-                {{#if this.status}} 
-                Activo
-                {{else}}
-                Desactivado
-                {{/if}}
-            </td>
-            <td>
-                {{#if this.thumbnails.length}} 
-                <a href="{{this.thumbnails.[0]}}" target="_blank">{{this.thumbnails.[0]}}</a>
-                {{else}}
-                No hay Imagen
-                {{/if}}
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Código</th>
+                <th>Stock</th>
+                <th>Categoría</th>
+                <th>Status</th>
+                <th>Imagen</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#each result.payload}}
+            <tr>
+                <td>{{this.title}}</td>
+                <td>{{this.description}}</td>
+                <td>{{this.price}}</td>
+                <td>{{this.code}}</td>
+                <td>{{this.stock}}</td>
+                <td>{{this.category}}</td>
+                <td>{{#if this.status}}Activo{{else}}Desactivado{{/if}}</td>
+                <td>
+                    {{#if this.thumbnails.length}}
+                    <a href="{{this.thumbnails.[0]}}" target="_blank">{{this.thumbnails.[0]}}</a>
+                    {{else}}
+                    No hay Imagen
+                    {{/if}}
                 </td>
                 <td>
-                    <button onclick="addToCart('{{this._id}}')">Add to cart</button>
+                    <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button>
                 </td>
-        </tr>
-        {{/each}}
-    </tbody>
-</table>
+            </tr>
+            {{/each}}
+        </tbody>
+    </table>
 
-<div class="pagination">
-    <span>Limite por pagina: {{result.limit}}</span><br>
+    <div class="pagination">
+        <span>Limite por página: {{result.limit}}</span><br>
+        {{#if result.query}}
+        <span>Filtrado por: {{result.query}}</span><br>
+        {{else}}
+        Nada
+        {{/if}}
+        
+        {{#if result.hasPrevPage}}
+        <a href="?page={{result.prevPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Anterior</a>
+        {{/if}}
 
-    {{#if result.query}}
-    <span>Filtrado por: {{result.query}}</span> <br>
-    {{else}}
-    Nada
-    {{/if}}
+        <span>Página {{result.page}} de {{result.totalPages}}</span>
 
-    {{#if result.hasPrevPage}}
-    <a href="?page={{result.prevPage}}&limit={{result.limit}}"{{#if result.query}}#query={{result.query}}{{/if}}>Prev. Page</a>
-    {{/if}}
-
-    <span>Page {{result.page}} from {{result.totalPages}}</span>
-
-    {{#if result.hasNextPage}}
-    <a href="?page={{result.nextPage}}&limit={{result.limit}}"{{#if result.query}}#query={{result.query}}{{/if}}>Next Page</a>
-    {{/if}}
-</div>
+        {{#if result.hasNextPage}}
+        <a href="?page={{result.nextPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Siguiente</a>
+        {{/if}}
+    </div>
 </div>
 
 <script>
-    function addToCart(productId){
-        console.log(`Objeto con id ${productId} Agegado al carrrito`)
-        const idCartTEST="6640d10f072c6b087155895c"
+    function addToCart(productId) {
+        console.log(`Objeto con id ${productId} agregado al carrito`);
+        const idCartTEST = "6640d10f072c6b087155895c";
         fetch(`/api/carts/${idCartTEST}/product/${productId}`, {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
             }
         })
-            .then(res => res.json())
-            .then(data =>{
-                console.log(data);
-            })
-            .catch(error =>{
-                console.log('Error al realizar el POST', error)
-            })   
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.log('Error al realizar el POST', error);
+        });
     }
 </script>

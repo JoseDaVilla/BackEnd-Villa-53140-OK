@@ -1,6 +1,6 @@
 import { Router } from "express"
 import { getProductsService } from "../services/productsManagerDBService.js"
-import { getCartByIdService } from "../services/cartsService.js"
+import { getCartByIdService } from "../services/cartsServiceDB.js"
 import { auth } from "../middleware/auth.js"
 
 
@@ -8,26 +8,26 @@ import { auth } from "../middleware/auth.js"
 
 const router = Router()
 
-router.get('/',auth, async (req, res) => {
+router.get('/', async (req, res) => {
 
     const { payload } = await getProductsService({})
     return res.render('inicio', { productos: payload })
 })
 
-router.get('/realtimeproducts',auth,  (req, res) => {
+router.get('/realtimeproducts',  (req, res) => {
     return res.render('realTimeProducts')
 })
 
-router.get('/chat', (req, res) => {
+router.get('/chat',auth(['admin']), (req, res) => {
     return res.render('chat')
 })
 
-router.get('/products', auth, async (req, res) => {
+router.get('/products', auth(['admin', 'user']), async (req, res) => {
     const result = await getProductsService({ ...req.query })
     return res.render('products', { result })
 })
 
-router.get('/cart/:cid', async (req, res) => {
+router.get('/cart/:cid', auth(['admin', 'user']),async (req, res) => {
     const { cid } = req.params;
     const carrito = await getCartByIdService(cid)
     return res.render('cart', { carrito })

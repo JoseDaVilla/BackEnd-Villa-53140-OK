@@ -1,50 +1,31 @@
-import { Router } from 'express';
-import passport from 'passport';
-import { auth } from '../middleware/auth.js';
+import { Router } from "express";
+import passport from "passport";
+import { auth } from "../middleware/auth.js";
+import { login, getCurrentUser, githubLogin, githubCallback, handleError, register, logout, } from "../services/sessionsService.js";
 
-export const router = Router();
+const router = Router();
 
-router.post("/login", passport.authenticate("login", { failureRedirect: "/api/sessions/error" }), (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ payload: "Login exitoso!", usuario: req.user });
-});
+router.post("/login", passport.authenticate("login", { failureRedirect: "/api/sessions/error" }),
+    login
+);
 
-router.get("/current", auth, (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ payload: "Datos de usuario--!!", usuario: req.user, carrito: req.user.cart });
-});
+router.get("/current", auth([ 'admin','user']), getCurrentUser);
 
 
-router.get("/github", passport.authenticate("github", { failureRedirect: "/api/sessions/error" }), (req, res) => { });
+router.get("/github", passport.authenticate("github", { failureRedirect: "/api/sessions/error" }),
+    githubLogin
+);
 
-router.get("/callbackGithub", passport.authenticate("github", { failureRedirect: "/api/sessions/error" }), (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ payload: "Login exitoso!", usuario: req.user });
-});
+router.get("/callbackGithub", passport.authenticate("github", { failureRedirect: "/api/sessions/error" }),
+    githubCallback
+);
 
-router.get("/error", (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(500).json({ error: "Error en la operación" });
-});
+router.get("/error", handleError);
 
-router.post("/registro", passport.authenticate("registro", { failureRedirect: "/api/sessions/error" }), (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ payload: "Registro exitoso!", usuario: req.user });
-});
+router.post("/registro", passport.authenticate("registro", { failureRedirect: "/api/sessions/error" }),
+    register
+);
 
-router.get("/logout", (req, res) => {
-    req.session.destroy(e => {
-        if (e) {
-            console.error("Error al destruir la sesión:", e);  // Debug log
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({
-                error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                detalle: `${e.message}`
-            });
-        }
-    });
-    res.setHeader('Content-Type', 'application/json');
-    res.redirect('/login');
-});
+router.get("/logout", logout);
 
 export default router;

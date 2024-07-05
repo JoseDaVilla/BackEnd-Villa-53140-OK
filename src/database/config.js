@@ -1,11 +1,11 @@
 import mongoose from "mongoose";
+import { config } from "../config/config.js";
 
-const URL_MONGO_DB = 'mongodb+srv://josedvilla18:ecommerce-villa@ecommerce.avwlkz3.mongodb.net/ecommerce'
 
 export const dbConnection = async () => {
     
     try {
-        await mongoose.connect(URL_MONGO_DB)
+        await mongoose.connect(config.MONGO_URL)
         console.log('Conexión a la base de datos exitosa')
     } catch (error) {
         console.log(`Error al levantar la base de datos ${error}`)

@@ -1,9 +1,11 @@
 import passport from "passport";
 import local from "passport-local";
 import github from "passport-github2";
-import { UsersManagerMongo as UsuariosManager } from "../dao/UserManagerDB.js";
-import { createCartService } from "../services/cartsService.js";
+import { UsersManagerMongo as UsuariosManager } from "../dao/controllers/UserManagerDB.js";
+import { createCartService } from "../services/cartsServiceDB.js";
 import { generaHash, validatePassword } from "../utils.js";
+import UserDTO from "../dao/DTOs/sessionsDTO.js";
+import { config } from "./config.js";
 
 const usuariosManager = new UsuariosManager();
 
@@ -12,15 +14,15 @@ export const initPassport = () => {
         "github",
         new github.Strategy(
             {
-                clientID: "Iv23liFjEWfEEEOY6BPa",
-                clientSecret: "72f78552b53ac6d37db065de70c1d15131913056",
-                callbackURL: "http://localhost:3000/api/sessions/callbackGithub",
+                clientID: config.clientID,
+                clientSecret: config.clientSecret,
+                callbackURL: config.callbackURL,
             },
             async (ta, tr, profile, done) => {
                 try {
                     console.log(profile);
                     let email = profile._json.email;
-                    let nombre = profile._json.nombre;
+                    let nombre = profile._json.name;
                     if (!email) {
                         return done(null, false);
                     }
@@ -68,7 +70,9 @@ export const initPassport = () => {
                     usuario.cart = carrito._id;
                     await usuariosManager.update({ email: username }, { cart: carrito._id });
 
-                    return done(null, usuario);
+                    const userDTO = new UserDTO(usuario);
+
+                    return done(null, userDTO);
                 } catch (error) {
                     return done(error);
                 }
@@ -87,8 +91,9 @@ export const initPassport = () => {
                     if (username == "adminCoder@coder.com" && password == "adminCod3r123") {
                         let usuario = {
                             _id: "idAdmin", nombre: "admin", email: username,
-                            carrito: { _id: "6640d10f072c6b087155895c" }, rol: "admin"
+                            carrito: { _id: "6684bcfca12ca8e5db86e2ad" }, rol: "admin"
                         }
+
                         return done(null, usuario);
                     }
 
@@ -107,8 +112,10 @@ export const initPassport = () => {
                         await usuariosManager.update({ email: username }, { cart: carrito._id });
                     }
 
-                    delete usuario.password;
-                    return done(null, usuario);
+                    const userDTO = new UserDTO(usuario);
+                    console.log(usuario, userDTO);
+
+                    return done(null, userDTO);
                 } catch (error) {
                     return done(error);
                 }
@@ -116,20 +123,34 @@ export const initPassport = () => {
         )
     );
 
-    passport.serializeUser((usuario, done) => {
-        return done(null, usuario._id);
+    passport.serializeUser((userDTO, done) => {
+        console.log("Serializing user:", userDTO);
+        return done(null, userDTO._id); // Solo guardar el _id del usuario en la sesión
     });
-
+    
     passport.deserializeUser(async (id, done) => {
-        let usuario;
-        if (id === "idAdmin") {
-            usuario = {
-                _id: "idAdmin", nombre: "admin", email: "adminCoder@coder.com",
-                carrito: { _id: "663980cad0e550982f0db3f1" }, rol: "admin"
+        try {
+            let usuario;
+            if (id === "idAdmin") {
+                usuario = {
+                    _id: "idAdmin", nombre: "admin", email: "adminCoder@coder.com",
+                    cart: { _id: "6684bcfca12ca8e5db86e2ad" }, rol: "admin"
+                };
+            } else {
+                usuario = await usuariosManager.getBy({ _id: id });
             }
-        } else {
-            usuario = await usuariosManager.getBy({ _id: id });
+    
+            console.log("Deserializing user:", usuario);
+    
+            if (!usuario) {
+                return done(null, false); // Si no se encuentra el usuario
+            }
+    
+            const userDTO = new UserDTO(usuario);
+            console.log("Deserialized user DTO:", userDTO);
+    
+            return done(null, userDTO); // Retornar el objeto UserDTO
+        } catch (error) {
+            return done(error); // Manejar error si ocurre alguna excepción
         }
-        return done(null, usuario);
-    });
-}
+    });}

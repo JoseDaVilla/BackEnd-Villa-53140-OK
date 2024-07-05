@@ -14,10 +14,10 @@ import { addProductService, getProductsService } from "./services/productsManage
 import { auth } from "./middleware/auth.js";
 import { initPassport } from "./config/passport.config.js";
 import passport from "passport";
+import { config } from "./config/config.js";
 
 const app = express();
-const PORT = 3000;
-const URL_MONGO_DB = 'mongodb+srv://josedvilla18:ecommerce-villa@ecommerce.avwlkz3.mongodb.net/ecommerce';
+const PORT = config.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
 app.use(sessions({
-    secret: '22Dntoasm2',
+    secret: config.SECRET,
     resave: true,
     saveUninitialized: true
 }));
@@ -39,8 +39,8 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 
 app.use('/', views);
-app.use('/api/products', auth, productsRouter);
-app.use('/api/carts', auth, cartsRouter);
+app.use('/api/products',  productsRouter);
+app.use('/api/carts', cartsRouter);
 app.use("/api/sessions", sessionsRouter);
 
 await dbConnection();

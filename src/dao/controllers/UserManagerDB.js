@@ -1,9 +1,10 @@
-import { userModel } from "./models/user.model.js";
+// import UserDTO from "../DTOs/sessionsDTO.js";
+import { userModel } from "../models/user.model.js";
 
 export class UsersManagerMongo{
 
     async create(user){
-        let nuevoUsuario=await userModel.create(user)
+        let nuevoUsuario =await userModel.create(user)
         return nuevoUsuario.toJSON()
     }
 
