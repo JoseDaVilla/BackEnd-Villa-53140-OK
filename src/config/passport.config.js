@@ -20,7 +20,7 @@ export const initPassport = () => {
             },
             async (ta, tr, profile, done) => {
                 try {
-                    console.log(profile);
+                    
                     let email = profile._json.email;
                     let nombre = profile._json.name;
                     if (!email) {
@@ -113,7 +113,7 @@ export const initPassport = () => {
                     }
 
                     const userDTO = new UserDTO(usuario);
-                    console.log(usuario, userDTO);
+                    
 
                     return done(null, userDTO);
                 } catch (error) {
@@ -124,8 +124,8 @@ export const initPassport = () => {
     );
 
     passport.serializeUser((userDTO, done) => {
-        console.log("Serializing user:", userDTO);
-        return done(null, userDTO._id); // Solo guardar el _id del usuario en la sesión
+        
+        return done(null, userDTO._id); 
     });
     
     passport.deserializeUser(async (id, done) => {
@@ -140,17 +140,17 @@ export const initPassport = () => {
                 usuario = await usuariosManager.getBy({ _id: id });
             }
     
-            console.log("Deserializing user:", usuario);
+            
     
             if (!usuario) {
-                return done(null, false); // Si no se encuentra el usuario
+                return done(null, false); 
             }
     
             const userDTO = new UserDTO(usuario);
-            console.log("Deserialized user DTO:", userDTO);
+            
     
-            return done(null, userDTO); // Retornar el objeto UserDTO
+            return done(null, userDTO); 
         } catch (error) {
-            return done(error); // Manejar error si ocurre alguna excepción
+            return done(error); 
         }
     });}

@@ -2,6 +2,7 @@ import { Router } from "express"
 import { getProductsService } from "../services/productsManagerDBService.js"
 import { getCartByIdService } from "../services/cartsServiceDB.js"
 import { auth } from "../middleware/auth.js"
+import { generateMockProducts } from "../services/mockingProducts.js"
 
 
 
@@ -32,6 +33,12 @@ router.get('/cart/:cid', auth(['admin', 'user']),async (req, res) => {
     const carrito = await getCartByIdService(cid)
     return res.render('cart', { carrito })
 })
+
+router.get('/mockingproducts', (req, res) => {
+    const products = generateMockProducts();
+    res.json(products);
+});
+
 
 router.get('/registro',(req,res)=>{
 

@@ -15,6 +15,7 @@ import { auth } from "./middleware/auth.js";
 import { initPassport } from "./config/passport.config.js";
 import passport from "passport";
 import { config } from "./config/config.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 const PORT = config.PORT;
@@ -37,7 +38,7 @@ app.use(passport.session());
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
-
+app.use(errorHandler);
 app.use('/', views);
 app.use('/api/products',  productsRouter);
 app.use('/api/carts', cartsRouter);

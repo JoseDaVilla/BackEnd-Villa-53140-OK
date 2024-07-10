@@ -3,6 +3,10 @@ import { cartModel } from "../models/carts.js";
 import { ticketModel } from "../models/ticket.js";
 import { productModel } from "../models/products.js";
 import { sendEmail } from "../../services/mailingService.js";
+import { CustomError } from "../../utils/customError.js";
+import { ERROR_TYPES } from "../../utils/errorTypes.js";
+
+
 
 export const createTicket = async (req = request, res = response) => {
     const { cid } = req.params;
@@ -13,7 +17,12 @@ export const createTicket = async (req = request, res = response) => {
         const cart = await cartModel.findById(cid).populate('products.id');
 
         if (!cart) {
-            return res.status(404).json({ msg: `El carrito con id ${cid} no existe` });
+            CustomError.createError(
+                "CartError",
+                `El carrito con id ${cid} no existe`,
+                ERROR_TYPES.CART_NOT_FOUND.message,
+                ERROR_TYPES.CART_NOT_FOUND.code
+            );
         }
 
         let totalPrice = 0;
@@ -21,7 +30,7 @@ export const createTicket = async (req = request, res = response) => {
         const notProcessedProducts = [];
 
         // ! CONSTRUCCIÓN DE LA LISTA DE PRODUCTOS Y DE LOS QUE NO FUERON PROCESADOS
-        
+
         for (const item of cart.products) {
             const product = await productModel.findById(item.id._id); //? Para obtener el producto completo desde la base de datos
             const quantity = item.quantity;
@@ -30,8 +39,6 @@ export const createTicket = async (req = request, res = response) => {
                 notProcessedProducts.push(item.id._id);
                 continue; // ? SALTAR EN CASO DE QUE NO SE ENCUENTRE EN LA BASE DE DATOS
             }
-
-
 
             if (product.stock >= quantity) {
                 product.stock -= quantity;
@@ -48,7 +55,6 @@ export const createTicket = async (req = request, res = response) => {
                     price,
                     title: product.title,
                     description: product.description,
-                    
                 });
             } else {
                 notProcessedProducts.push(item.id._id);
@@ -56,7 +62,12 @@ export const createTicket = async (req = request, res = response) => {
         }
 
         if (ticketProducts.length === 0) {
-            return res.status(400).json({ msg: 'No se pudieron procesar los productos debido a falta de stock', notProcessedProducts });
+            CustomError.createError(
+                "StockError",
+                "No se pudieron procesar los productos debido a falta de stock",
+                ERROR_TYPES.OUT_OF_STOCK.message,
+                ERROR_TYPES.OUT_OF_STOCK.code
+            );
         }
 
         //! CREACIÓN DEL TICKET
@@ -74,23 +85,19 @@ export const createTicket = async (req = request, res = response) => {
         cart.products = cart.products.filter(item => notProcessedProducts.includes(item.id._id));
         await cart.save();
 
-
-//         const emailHtml = `
-//         <h1>Nueva compra realizada</h1>
-//         <p>Usuario con el id ha realizado una compra </p>
-//         <p>Descripción: ${user}</p>
-//         <p>Precio: ${totalPrice}</p>
-// `;
-// await sendEmail('josecool_vv2010@hotmail.com', 'Nuevo Producto Agregado', emailHtml);
-
+        // const emailHtml = `
+        // <h1>Nueva compra realizada</h1>
+        // <p>Usuario con el id ha realizado una compra </p>
+        // <p>Descripción: ${user}</p>
+        // <p>Precio: ${totalPrice}</p>
+        // `;
+        // await sendEmail('josecool_vv2010@hotmail.com', 'Nuevo Producto Agregado', emailHtml);
 
         return res.json({ msg: 'Ticket creado y correo enviado correctamente', ticket: newTicket, notProcessedProducts });
     } catch (error) {
         console.error('Error al crear el ticket:', error);
-        return res.status(500).json({ msg: 'Error al crear el ticket. Por favor, contacta al administrador.' });
+        return res.status(error.code || 500).json({ msg: error.message });
     }
-
-
 };
 
 export const deleteTicket = async (req = request, res = response) => {
@@ -100,12 +107,17 @@ export const deleteTicket = async (req = request, res = response) => {
         const ticket = await ticketModel.findByIdAndDelete(tid);
 
         if (!ticket) {
-            return res.status(404).json({ msg: `El ticket con id ${tid} no existe` });
+            CustomError.createError(
+                "TicketError",
+                `El ticket con id ${tid} no existe`,
+                ERROR_TYPES.PRODUCT_NOT_FOUND.message,
+                ERROR_TYPES.PRODUCT_NOT_FOUND.code
+            );
         }
 
         return res.json({ msg: 'Ticket eliminado correctamente -- APTO PARA REALIZAR UNA NUEVA COMPRA', ticket });
     } catch (error) {
         console.error('Error al eliminar el ticket:', error);
-        return res.status(500).json({ msg: 'Error al eliminar el ticket. Por favor, contacta al administrador.' });
+        return res.status(error.code || 500).json({ msg: error.message });
     }
 };
