@@ -12,5 +12,6 @@ export const config={
     SECRET: process.env.SECRET,
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret ,
-    callbackURL: process.env.callbackURL
+    callbackURL: process.env.callbackURL,
+    ENTORNO: process.env.ENTORNO||"test"
 }

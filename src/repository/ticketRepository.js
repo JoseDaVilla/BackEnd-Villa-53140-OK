@@ -1,4 +1,3 @@
-// repository/ticketRepository.js
 import { ticketModel } from "../dao/models/ticket.js";
 
 class TicketRepository {

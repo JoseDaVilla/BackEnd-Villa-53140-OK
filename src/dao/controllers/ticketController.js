@@ -5,18 +5,24 @@ import { productModel } from "../models/products.js";
 import { sendEmail } from "../../services/mailingService.js";
 import { CustomError } from "../../utils/customError.js";
 import { ERROR_TYPES } from "../../utils/errorTypes.js";
-
-
+import logger from "../../config/logger.js";
 
 export const createTicket = async (req = request, res = response) => {
     const { cid } = req.params;
     const user = req.user;
 
     try {
-        //! OBTENER CARRITO CON DETALLES DE LOS PRODUCTOS
+        if (!user) {
+            logger.error("Usuario no autenticado");
+            return res.status(401).json({ msg: "Usuario no autenticado" });
+        }
+
+        logger.debug("Usuario autenticado", user);
+
         const cart = await cartModel.findById(cid).populate('products.id');
 
         if (!cart) {
+            logger.error(`El carrito con id ${cid} no existe`);
             CustomError.createError(
                 "CartError",
                 `El carrito con id ${cid} no existe`,
@@ -25,43 +31,63 @@ export const createTicket = async (req = request, res = response) => {
             );
         }
 
+        logger.debug("Carrito encontrado", cart);
+
         let totalPrice = 0;
         const ticketProducts = [];
         const notProcessedProducts = [];
 
-        // ! CONSTRUCCIÓN DE LA LISTA DE PRODUCTOS Y DE LOS QUE NO FUERON PROCESADOS
-
+    
         for (const item of cart.products) {
-            const product = await productModel.findById(item.id._id); //? Para obtener el producto completo desde la base de datos
-            const quantity = item.quantity;
+            logger.debug("Procesando producto en el carrito", item);
 
-            if (!product) {
-                notProcessedProducts.push(item.id._id);
-                continue; // ? SALTAR EN CASO DE QUE NO SE ENCUENTRE EN LA BASE DE DATOS
-            }
+            try {
+                const product = await productModel.findById(item.id._id);
+                const quantity = item.quantity;
 
-            if (product.stock >= quantity) {
-                product.stock -= quantity;
-                await product.save();
+                if (!product) {
+                    logger.warn(`Producto con id ${item.id._id} no encontrado`);
+                    notProcessedProducts.push(item.id._id);
+                    continue; 
+                }
 
-                const price = product.price;
-                totalPrice += price * quantity;
+                logger.debug("Producto encontrado", product);
 
-                //? AGREGAR LOS DETALLES DEL PRODUCTO EN UN ARRAY AL TICKET
+                if (product.stock >= quantity) {
+                    product.stock -= quantity;
+                    await product.save();
 
-                ticketProducts.push({
-                    productId: product._id,
-                    quantity,
-                    price,
-                    title: product.title,
-                    description: product.description,
-                });
-            } else {
+                    const price = product.price;
+                    totalPrice += price * quantity;
+
+
+                    ticketProducts.push({
+                        productId: product._id,
+                        quantity,
+                        price,
+                        title: product.title,
+                        description: product.description,
+                    });
+
+                    logger.debug("Producto agregado al ticket", {
+                        productId: product._id,
+                        quantity,
+                        price,
+                        title: product.title,
+                        description: product.description,
+                    });
+                } else {
+                    logger.warn(`Producto con id ${item.id._id} no tiene suficiente stock`);
+                    notProcessedProducts.push(item.id._id);
+                }
+            } catch (error) {
+                logger.error(`Error al procesar producto con id ${item.id._id}: ${error.message}`);
                 notProcessedProducts.push(item.id._id);
             }
         }
 
         if (ticketProducts.length === 0) {
+            logger.error("No se pudieron procesar los productos debido a falta de stock");
             CustomError.createError(
                 "StockError",
                 "No se pudieron procesar los productos debido a falta de stock",
@@ -70,7 +96,7 @@ export const createTicket = async (req = request, res = response) => {
             );
         }
 
-        //! CREACIÓN DEL TICKET
+
         const newTicket = new ticketModel({
             user: user._id,
             cart: cid,
@@ -78,24 +104,19 @@ export const createTicket = async (req = request, res = response) => {
             products: ticketProducts
         });
 
-        //? GUARDAR EN MONGO
+
         await newTicket.save();
 
-        //! LOGICA DE PRODUCTOS (PARA SABER CUALES SE PUDIERON AGREGAR Y CUALES NO)
+        logger.debug("Ticket creado y guardado en la base de datos", newTicket);
+
         cart.products = cart.products.filter(item => notProcessedProducts.includes(item.id._id));
         await cart.save();
 
-        // const emailHtml = `
-        // <h1>Nueva compra realizada</h1>
-        // <p>Usuario con el id ha realizado una compra </p>
-        // <p>Descripción: ${user}</p>
-        // <p>Precio: ${totalPrice}</p>
-        // `;
-        // await sendEmail('josecool_vv2010@hotmail.com', 'Nuevo Producto Agregado', emailHtml);
+        logger.debug("Carrito actualizado después de crear el ticket", cart);
 
         return res.json({ msg: 'Ticket creado y correo enviado correctamente', ticket: newTicket, notProcessedProducts });
     } catch (error) {
-        console.error('Error al crear el ticket:', error);
+        logger.error('Error al crear el ticket:', error);
         return res.status(error.code || 500).json({ msg: error.message });
     }
 };
@@ -117,7 +138,7 @@ export const deleteTicket = async (req = request, res = response) => {
 
         return res.json({ msg: 'Ticket eliminado correctamente -- APTO PARA REALIZAR UNA NUEVA COMPRA', ticket });
     } catch (error) {
-        console.error('Error al eliminar el ticket:', error);
+        logger.error('Error al eliminar el ticket:', error);
         return res.status(error.code || 500).json({ msg: error.message });
     }
 };

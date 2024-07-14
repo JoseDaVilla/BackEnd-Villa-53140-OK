@@ -1,6 +1,7 @@
 import express from "express";
 import { engine } from "express-handlebars";
 import { Server } from 'socket.io';
+import loggerTestRouter from './routers/loggerTest.js';
 import productsRouter from "./routers/products.js";
 import cartsRouter from "./routers/carts.js";
 import views from "./routers/views.js";
@@ -16,10 +17,13 @@ import { initPassport } from "./config/passport.config.js";
 import passport from "passport";
 import { config } from "./config/config.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import loggerMiddleware from "./middleware/loggerMiddleware.js";
+import logger from "./config/logger.js";
+
 
 const app = express();
 const PORT = config.PORT;
-
+app.use(loggerMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -35,6 +39,7 @@ initPassport();
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/loggerTest', loggerTestRouter);
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
@@ -47,13 +52,13 @@ app.use("/api/sessions", sessionsRouter);
 await dbConnection();
 
 const expressServer = app.listen(PORT, () => {
-    console.log(`Servidor activo en el puerto ${PORT}`);
+    logger.info(`Server running on port ${PORT}`);
 });
 
 const socketServer = new Server(expressServer);
 
 socketServer.on('connection', async (socket) => {
-    console.log('Usuario conectado desde el frontend');
+    logger.info('Usuario conectado desde el frontend');
 
     const { payload } = await getProductsService({});
     const productos = payload;

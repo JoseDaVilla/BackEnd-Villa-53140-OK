@@ -1,3 +1,4 @@
+import logger from "../../config/logger.js";
 import {
     getProductsService,
     getProductByIdService,
@@ -16,7 +17,7 @@ export const getProducts = async (req, res, next) => {
         const products = await getProductsService(req.query);
         res.json(products);
     } catch (error) {
-        console.error("Error al obtener productos:", error);
+        logger.error("Error al obtener productos:", error);
         next(error);
     }
 };
@@ -35,7 +36,7 @@ export const getProductById = async (req, res, next) => {
         }
         res.json(product);
     } catch (error) {
-        console.error("Error al obtener producto por ID:", error);
+        logger.error("Error al obtener producto por ID:", error);
         next(error);
     }
 };
@@ -46,7 +47,7 @@ export const addProduct = async (req, res, next) => {
         const newProduct = await addProductService(productData);
         res.status(201).json(newProduct);
     } catch (error) {
-        console.error("Error al agregar producto:", error);
+        logger.error("Error al agregar producto:", error);
         next(error);
     }
 };
@@ -58,7 +59,7 @@ export const updateProduct = async (req, res, next) => {
         const updatedProduct = await updateProductService(pid, updateData);
         res.json(updatedProduct);
     } catch (error) {
-        console.error("Error al actualizar producto:", error);
+        logger.error("Error al actualizar producto:", error);
         next(error);
     }
 };
@@ -69,7 +70,7 @@ export const deleteProduct = async (req, res, next) => {
         const deletedProduct = await deleteProductService(pid);
         res.json({ deletedProduct });
     } catch (error) {
-        console.error("Error al eliminar producto:", error);
+        logger.error("Error al eliminar producto:", error);
         next(error);
     }
 };

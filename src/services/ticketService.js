@@ -2,10 +2,8 @@ import CartRepository from "../repository/cartRepository.js";
 import productsRepository from "../repository/productsRepository.js"; 
 import ticketRepository from "../repository/ticketRepository.js";
 
-
 export const purchaseCartService = async (cid, email) => {
     const cart = await CartRepository.getCartById(cid);
-    console.log(cid)
     if (!cart) throw new Error("Cart not found");
 
     let totalAmount = 0;
@@ -26,7 +24,7 @@ export const purchaseCartService = async (cid, email) => {
     if (productsToBuy.length > 0) {
         const ticketData = {
             amount: totalAmount,
-            purchaser: username
+            purchaser: email
         };
         await ticketRepository.createTicket(ticketData);
     }
