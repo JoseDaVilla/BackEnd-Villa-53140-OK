@@ -2,6 +2,7 @@ import express from "express";
 import { engine } from "express-handlebars";
 import { Server } from 'socket.io';
 import loggerTestRouter from './routers/loggerTest.js';
+import resetPasswordRouter from './routers/resetPassword.js'
 import productsRouter from "./routers/products.js";
 import cartsRouter from "./routers/carts.js";
 import views from "./routers/views.js";
@@ -48,6 +49,7 @@ app.use('/', views);
 app.use('/api/products',  productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use("/api/sessions", sessionsRouter);
+app.use('/api/reset', resetPasswordRouter);
 
 await dbConnection();
 

@@ -1,4 +1,4 @@
-// src/middlewares/errorHandler.js
+
 import { ERROR_TYPES } from "../utils/errorTypes.js";
 
 export const errorHandler = (err, req, res, next) => {

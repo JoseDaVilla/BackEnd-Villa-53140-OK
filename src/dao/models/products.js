@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import mongoose, { Schema, model } from "mongoose";
 
 const nameCollection = 'Product'
 
@@ -11,7 +11,8 @@ const ProductSchema = new Schema({
     stock:{type: Number, required:[true, 'El stock del producto es obligatorio'], },
     category:{type:String, required:[true, 'El category del producto es obligatorio'], },
     status:{type: Boolean, default: true },
-    thumbnails: [{type: String}]
+    thumbnails: [{type: String}],
+    owner: { type: String, ref: 'User', default: "admin" }
 });
 
 ProductSchema.set('toJSON',{

@@ -1,4 +1,4 @@
-// ticketModel.js
+
 import { Schema, model } from "mongoose";
 
 const nameCollection = 'Ticket';

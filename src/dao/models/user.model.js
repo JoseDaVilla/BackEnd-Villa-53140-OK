@@ -11,7 +11,7 @@ export const userModel = mongoose.model('usuarios', new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'carts'
     },
-    rol: {
-        type: String, default: "user", enum: ["admin", "user"]
-    },
+    rol: { type: String, enum: ['user', 'premium', 'admin'], default: 'user' },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
 }));

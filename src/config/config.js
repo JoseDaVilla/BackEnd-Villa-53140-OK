@@ -13,5 +13,8 @@ export const config={
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret ,
     callbackURL: process.env.callbackURL,
-    ENTORNO: process.env.ENTORNO||"test"
+    ENTORNO: process.env.ENTORNO||"test",
+    RESET_PASSWORD_URL: process.env.RESET_PASSWORD_URL,
+    EMAIL_USER: process.env.EMAIL_USER,
+    EMAIL_PASS: process.env.EMAIL_PASS,
 }

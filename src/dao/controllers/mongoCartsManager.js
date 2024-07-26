@@ -29,12 +29,16 @@ export const createCart = async (req = request, res = response) => {
 export const addProductInCart = async (req = request, res = response) => {
     try {
         const { cid, pid } = req.params;
-        
+        const userId = req.user._id;
+
         logger.debug(`addProductInCart => cid: ${cid}, pid: ${pid}`);
-        const carrito = await addProductInCartService(cid, pid);
+        const carrito = await addProductInCartService(userId, cid, pid);
         return res.json({ msg: 'Cart updated!', carrito });
     } catch (error) {
         logger.error('addProductInCart => ', error);
+        if (error.message === "Los usuarios premium no pueden agregar sus propios productos al carrito.") {
+            return res.status(400).json({ msg: error.message });
+        }
         return res.status(500).json({ msg: 'Talk to an administrator' });
     }
 };

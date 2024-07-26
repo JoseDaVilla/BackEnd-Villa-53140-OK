@@ -43,6 +43,7 @@ export const getProductById = async (req, res, next) => {
 
 export const addProduct = async (req, res, next) => {
     const productData = req.body;
+    productData.owner = req.user._id; // Asigna el owner al usuario actual
     try {
         const newProduct = await addProductService(productData);
         res.status(201).json(newProduct);
@@ -67,6 +68,20 @@ export const updateProduct = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
     const { pid } = req.params;
     try {
+        const product = await getProductByIdService(pid);
+        if (!product) {
+            throw CustomError.createError(
+                "ProductNotFoundError",
+                `Producto con id ${pid} no encontrado`,
+                ERROR_TYPES.PRODUCT_NOT_FOUND.message,
+                ERROR_TYPES.PRODUCT_NOT_FOUND.code
+            );
+        }
+
+        if (req.user.rol !== "admin" && product.owner.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ message: "No autorizado para eliminar este producto" });
+        }
+
         const deletedProduct = await deleteProductService(pid);
         res.json({ deletedProduct });
     } catch (error) {

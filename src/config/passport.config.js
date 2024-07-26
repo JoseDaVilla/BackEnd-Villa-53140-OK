@@ -90,7 +90,7 @@ export const initPassport = () => {
                 try {
                     if (username == "adminCoder@coder.com" && password == "adminCod3r123") {
                         let usuario = {
-                            _id: "idAdmin", nombre: "admin", email: username,
+                            _id: "664a79992bfb5d2b228a8f9", nombre: "admin", email: username,
                             carrito: { _id: "6684bcfca12ca8e5db86e2ad" }, rol: "admin"
                         }
 
@@ -131,9 +131,9 @@ export const initPassport = () => {
     passport.deserializeUser(async (id, done) => {
         try {
             let usuario;
-            if (id === "idAdmin") {
+            if (id === "664a79992bfb5d2b228a8f9") {
                 usuario = {
-                    _id: "idAdmin", nombre: "admin", email: "adminCoder@coder.com",
+                    _id: "664a79992bfb5d2b228a8f9", nombre: "admin", email: "adminCoder@coder.com",
                     cart: { _id: "6684bcfca12ca8e5db86e2ad" }, rol: "admin"
                 };
             } else {

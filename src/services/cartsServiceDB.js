@@ -1,5 +1,6 @@
 import logger from "../config/logger.js";
 import CartRepository from "../repository/cartRepository.js";
+import productsRepository from "../repository/productsRepository.js";
 
 export const getCartByIdService = async (cid) => {
     try {
@@ -21,9 +22,15 @@ export const createCartService = async () => {
     }
 };
 
-export const addProductInCartService = async (cid, pid) => {
+export const addProductInCartService = async  (userId, cid, pid) => {
     try {
         
+        const product = await productsRepository.getProductById(pid);
+
+        if (product.owner.toString() === userId.toString()) {
+            throw new Error("Los usuarios premium no pueden agregar sus propios productos al carrito.");
+        }
+
         return await CartRepository.addProductToCart(cid, pid);
     } catch (error) {
         logger.error("addProductInCartService => ", error);

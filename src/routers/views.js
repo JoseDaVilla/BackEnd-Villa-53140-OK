@@ -23,12 +23,12 @@ router.get('/chat',auth(['admin']), (req, res) => {
     return res.render('chat')
 })
 
-router.get('/products', auth(['admin', 'user']), async (req, res) => {
+router.get('/products', auth(['admin','premium', 'user']), async (req, res) => {
     const result = await getProductsService({ ...req.query })
     return res.render('products', { result })
 })
 
-router.get('/cart/:cid', auth(['admin', 'user']),async (req, res) => {
+router.get('/cart/:cid', auth(['admin', 'premium','user']),async (req, res) => {
     const { cid } = req.params;
     const carrito = await getCartByIdService(cid)
     return res.render('cart', { carrito })
@@ -52,6 +52,18 @@ router.get('/login',(req,res)=>{
     res.status(200)
     return res.render('login', {error})
 })
+
+router.get('/resetPassword',(req,res)=>{
+
+    let {error}=req.query
+
+    res.status(200)
+    return res.render('resetPassword', {error})
+})
+
+router.get('/reset-password/:token', (req, res) => {
+    res.render('resetPasswordPortal', { token: req.params.token });
+});
 
 
 export default router
