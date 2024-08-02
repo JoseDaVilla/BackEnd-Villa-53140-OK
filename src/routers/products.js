@@ -5,8 +5,8 @@ import { addProduct, deleteProduct, getProductById, getProducts, updateProduct }
 
 const router = Router();
 
-router.get("/", auth(["admin", "user", "premium"]), getProducts);
-router.get("/:pid", auth(["admin", "user", "premium"]), getProductById);
+router.get("/", getProducts);
+router.get("/:pid", getProductById);
 router.post("/", auth(["admin", "premium"]), addProduct);
 router.put("/:pid", auth(["admin", "premium"]), updateProduct);
 router.delete("/:pid", auth(["admin", "premium"]), deleteProduct);

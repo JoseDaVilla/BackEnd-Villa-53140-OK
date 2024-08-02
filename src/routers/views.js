@@ -23,7 +23,7 @@ router.get('/chat',auth(['admin']), (req, res) => {
     return res.render('chat')
 })
 
-router.get('/products', auth(['admin','premium', 'user']), async (req, res) => {
+router.get('/products', async (req, res) => {
     const result = await getProductsService({ ...req.query })
     return res.render('products', { result })
 })

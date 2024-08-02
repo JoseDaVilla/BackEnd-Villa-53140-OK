@@ -20,6 +20,9 @@ import { config } from "./config/config.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import loggerMiddleware from "./middleware/loggerMiddleware.js";
 import logger from "./config/logger.js";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUI from "swagger-ui-express"
+
 
 
 const app = express();
@@ -36,6 +39,33 @@ app.use(sessions({
     saveUninitialized: true
 }));
 
+
+const swaggerOptions = {
+    swaggerDefinition: {
+        openapi: "3.0.0",
+        info: {
+            title: "Ecommerce-Coder API",
+            version: "1.0.0",
+            description: "API para la gestión de productos y carritos en proyecto ecommerce",
+            contact: {
+                name: "Jose Daniel Villa",
+                email: "josedvilla18@gmail.com",
+            },
+        },
+        servers: [
+            {
+                url: "http://localhost:3000",
+                description: "Servidor local",
+            },
+        ],
+    },
+    apis: ["./docs/*.yaml"]
+};
+
+const spec = swaggerJSDoc(swaggerOptions)
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(spec))
+
+
 initPassport();
 app.use(passport.initialize());
 app.use(passport.session());
@@ -46,7 +76,7 @@ app.set("view engine", "handlebars");
 app.set("views", path.join(__dirname, "views"));
 app.use(errorHandler);
 app.use('/', views);
-app.use('/api/products',  productsRouter);
+app.use('/api/products', productsRouter);
 app.use('/api/carts', cartsRouter);
 app.use("/api/sessions", sessionsRouter);
 app.use('/api/reset', resetPasswordRouter);
