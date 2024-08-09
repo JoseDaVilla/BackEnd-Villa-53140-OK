@@ -123,3 +123,5 @@ socketServer.on('connection', async (socket) => {
     });
     socket.broadcast.emit('nuevo_user');
 });
+
+export default app;
