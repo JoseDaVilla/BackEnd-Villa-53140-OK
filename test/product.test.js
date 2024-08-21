@@ -44,7 +44,7 @@ describe('Products API', () => {
                 "title": "test",
                 "description": "Descripcion de test",
                 "price": 1580,
-                "code": "test",
+                "code": "test-zapatos",
                 "stock": 47,
                 "category":"Zapatos",
                 "thumbnails":["https://test.com"]
@@ -94,7 +94,7 @@ describe('Products API', () => {
             .send(invalidProduct)
             .set('Authorization', `Bearer ${token}`);
 
-        expect(res.status).to.equal(500);
+        expect(res.status).to.equal(400);
     });
 
 });

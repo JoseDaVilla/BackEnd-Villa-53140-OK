@@ -1,9 +1,0 @@
-    {
-        "title": "Zapatos 3",
-        "description": "Descripcion de Zapatos 3",
-        "price": 330,
-        "code": "zapatos_3",
-        "stock": 30,
-        "category":"Zapatos",
-        "thumbnails":["https://zapatos_3.com"]
-    }

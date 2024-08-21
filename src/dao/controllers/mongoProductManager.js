@@ -36,8 +36,9 @@ export const getProductById = async (req, res, next) => {
         }
         res.json(product);
     } catch (error) {
+        res.status(400).json({message: "Error al encontrar producto, contacte con el administrador"});
         logger.error("Error al obtener producto por ID:", error);
-        next(error);
+        // next(error);
     }
 };
 
@@ -46,10 +47,12 @@ export const addProduct = async (req, res, next) => {
     productData.owner = req.user._id; // Asigna el owner al usuario actual
     try {
         const newProduct = await addProductService(productData);
+        logger.debug(`Producto agregado de manera exitosa por usuario ${productData.owner}`.green)
         res.status(201).json(newProduct);
     } catch (error) {
+        res.status(400).json({message: "Error al agregar producto, contacte con el administrador"});
         logger.error("Error al agregar producto:", error);
-        next(error);
+        // next(error);
     }
 };
 
@@ -59,6 +62,7 @@ export const updateProduct = async (req, res, next) => {
     try {
         const updatedProduct = await updateProductService(pid, updateData);
         res.json(updatedProduct);
+        logger.debug(`Producto con id: ${pid} fue actualizado. Revisar el producto`.green)
     } catch (error) {
         logger.error("Error al actualizar producto:", error);
         next(error);
@@ -83,6 +87,7 @@ export const deleteProduct = async (req, res, next) => {
         }
 
         const deletedProduct = await deleteProductService(pid);
+        logger.debug(`Producto con id: ${pid} fue eliminado de manera exitosa`.green)
         res.json({ deletedProduct });
     } catch (error) {
         logger.error("Error al eliminar producto:", error);

@@ -13,7 +13,10 @@ class SessionsRepository {
     async update(filter, update) {
         return await userModel.findOneAndUpdate(filter, update, { new: true }).lean();
     }
+
+    async deleteUser(userId) {
+        return await userModel.findByIdAndDelete(userId);
+    }
 }
 
 export default new SessionsRepository();
-

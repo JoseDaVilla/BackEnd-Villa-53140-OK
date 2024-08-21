@@ -5,6 +5,7 @@ class UserDTO {
         this.email = user.email;
         this.cart = user.cart||user.carrito;
         this.rol = user.rol;
+        this.documents = user.documents
     }
 }
 

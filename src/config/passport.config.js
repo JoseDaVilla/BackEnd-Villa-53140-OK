@@ -90,7 +90,7 @@ export const initPassport = () => {
                 try {
                     if (username == "adminCoder@coder.com" && password == "adminCod3r123") {
                         let usuario = {
-                            _id: "664a79992bfb5d2b228a8f9", nombre: "admin", email: username,
+                            _id: "664a79992bfb5d2b228a8f9a", nombre: "admin", email: username,
                             carrito: { _id: "6684bcfca12ca8e5db86e2ad" }, rol: "admin"
                         }
 

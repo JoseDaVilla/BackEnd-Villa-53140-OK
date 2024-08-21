@@ -5,10 +5,121 @@ import sessionsRepository from "../repository/sessionsRepository.js";
 import crypto from 'crypto';
 import bcrypt from 'bcrypt'
 import { sendPasswordResetEmail } from "./mailingService.js";
+import fs from 'fs';
+import path from 'path';
 
-export const login = (req, res) => {
-    res.setHeader('Content-Type', 'application/json');
-    return res.status(200).json({ payload: "Login exitoso!", usuario: req.user });
+export const login = async (req, res) => {
+    try {
+        await sessionsRepository.update({ _id: req.user._id }, { last_connection: new Date() });
+        res.setHeader('Content-Type', 'application/json');
+        return res.status(200).json({ payload: "Login exitoso!", usuario: req.user });
+    } catch (error) {
+        logger.error("Error al actualizar la última conexión: ", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+
+export const logout = async (req, res) => {
+    try {
+        await sessionsRepository.update({ _id: req.user._id }, { last_connection: new Date() });
+        req.session.destroy(e => {
+            if (e) {
+                console.error("Error al destruir la sesión:", e);
+                res.setHeader('Content-Type', 'application/json');
+                return res.status(500).json({
+                    error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
+                    detalle: `${e.message}`
+                });
+            }
+        });
+        res.setHeader('Content-Type', 'application/json');
+        res.status(200).json({message: `Usuario con id: ${req.user._id} a finalizado la sesión de manera exitosa`})
+    
+    } catch (error) {
+        logger.error("Error al actualizar la última conexión: ", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+
+export const uploadDocuments = async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const files = req.files;
+        if (!files || Object.keys(files).length === 0) {
+            return res.status(400).json({ error: "No se han subido archivos" });
+        }
+
+        const documents = [];
+
+        for (const key in files) {
+            files[key].forEach(file => {
+                documents.push({
+                    name: file.fieldname,
+                    reference: file.path
+                });
+            });
+            
+        }
+
+        await sessionsRepository.update({ _id: uid }, { documents: [] });
+        const updatedUser = await sessionsRepository.update({ _id: uid }, { $push: { documents: { $each: documents } } });
+        return res.status(200).json({ message: "Documentos subidos exitosamente", usuario: updatedUser });
+
+    } catch (error) {
+        logger.error("Error al subir documentos: ", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+
+
+export const changeUserRole = async (req, res) => {
+    try {
+        const { uid } = req.params;
+        const user = await sessionsRepository.getBy({ _id: uid });
+
+        if (!user) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+
+        const requiredDocuments = ["Identificacion", "Comprobante de domicilio", "Comprobante de estado de cuenta"];
+        const userDocuments = user.documents || [];
+
+        const userDocumentNames = userDocuments.map(doc => doc.name);
+        const missingDocuments = requiredDocuments.filter(doc => !userDocumentNames.includes(doc));
+
+        if (missingDocuments.length > 0) {
+            return res.status(400).json({ error: `Faltan los siguientes documentos para poder cambiar el rol: ${missingDocuments.join(", ")}` });
+        }
+
+        let newRole = '';
+        if (user.rol === 'user') {
+            newRole = 'premium';
+        } else if (user.rol === 'premium') {
+            newRole = 'user';
+        } else {
+            return res.status(400).json({ error: "El rol no es válido para esta operación" });
+        }
+
+        for (const document of userDocuments) {
+            try {
+                fs.unlinkSync(document.reference); // Eliminar archivo físico
+                logger.info(`Archivo eliminado con exito  ${document.reference}: `);
+            } catch (err) {
+                logger.error(`Error al eliminar el archivo ${document.reference}: `, err);
+            }
+        }
+
+        const updatedUser = await sessionsRepository.update(
+            { _id: uid },
+            { rol: newRole, documents: [] }
+        );
+
+        logger.info(`Rol del usuario ${user.email} actualizado a ${newRole}`);
+        return res.status(200).json({ message: "Rol actualizado exitosamente", usuario: updatedUser });
+    } catch (error) {
+        logger.error("changeUserRole => ", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
 };
 
 
@@ -35,54 +146,6 @@ export const handleError = (req, res) => {
 export const register = (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     return res.status(200).json({ payload: "Registro exitoso!", usuario: req.user });
-};
-
-export const logout = (req, res) => {
-    req.session.destroy(e => {
-        if (e) {
-            console.error("Error al destruir la sesión:", e);
-            res.setHeader('Content-Type', 'application/json');
-            return res.status(500).json({
-                error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador`,
-                detalle: `${e.message}`
-            });
-        }
-    });
-    res.setHeader('Content-Type', 'application/json');
-    res.redirect('/login');
-};
-
-export const changeUserRole = async (req, res) => {
-
-    // TODO Este proceso solo lo puedo hacer desde Postman y solo el Admin puede cambiar el rol del usuario usando el endpoint 
-    // TODO http://localhost:3000/api/sessions/premium/:uid  (Siendo _id: uid)
-
-    try {
-        const { uid } = req.params;
-
-        
-        const user = await sessionsRepository.getBy({ _id: uid });
-        if (!user) {
-            return res.status(404).json({ error: "Usuario no encontrado" });
-        }
-
-        let newRole = '';
-        if (user.rol === 'user') {
-            newRole = 'premium';
-        } else if (user.rol === 'premium') {
-            newRole = 'user';
-        } else {
-            return res.status(400).json({ error: "El rol no es válido para esta operación" });
-        }
-
-        const updatedUser = await sessionsRepository.update({ _id: uid }, { rol: newRole });
-        
-        logger.info(`Rol del usuario ${user.email} actualizado a ${newRole}`);
-        return res.status(200).json({ message: "Rol actualizado exitosamente", usuario: updatedUser });
-    } catch (error) {
-        logger.error("changeUserRole => ", error);
-        return res.status(500).json({ error: "Error interno del servidor" });
-    }
 };
 
 export const requestPasswordReset = async (req, res) => {
@@ -154,3 +217,21 @@ export const resetPassword = async (req, res) => {
         return res.status(500).json({ error: "Error interno del servidor" });
     }
 };
+
+export const deleteUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const deletedUser = await sessionsRepository.deleteUser(userId);
+
+        if (deletedUser) {
+            logger.warn(`User with id ${userId} was deleted successfully`)
+            return res.status(200).json({ user: "deleted user" });
+        } else {
+            return res.status(404).json({ error: "User not found" });
+        }
+    } catch (error) {
+        logger.error("Error en deleteUser: ", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+};
+

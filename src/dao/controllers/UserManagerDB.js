@@ -15,4 +15,8 @@ export class UsersManagerMongo{
     async update(filter, update) {
         return await userModel.findOneAndUpdate(filter, update, { new: true }).lean();
     }
+    async deleteUser(req, res){
+        return await userModel.findByIdAndDelete(_id);
+    }
 }
+

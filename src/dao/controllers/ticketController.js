@@ -113,7 +113,7 @@ export const createTicket = async (req = request, res = response) => {
         await cart.save();
 
         logger.debug("Carrito actualizado después de crear el ticket", cart);
-
+        
         return res.json({ msg: 'Ticket creado y correo enviado correctamente', ticket: newTicket, notProcessedProducts });
     } catch (error) {
         logger.error('Error al crear el ticket:', error);
