@@ -1,6 +1,8 @@
 <section class="products-content">
     <h3>Lista de productos:</h3>
     <a href="/cart/{{userDTO.cart}}" class="ruta">Ir al carrito</a>
+    
+    <a  href="/api/sessions/logout" class="ruta">Cerrar sesión</a>
         <section class="cards-section">
             {{#each result.payload}}
             <x-card>

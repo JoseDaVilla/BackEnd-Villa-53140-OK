@@ -41,7 +41,7 @@ router.get('/cart/:cid', auth(['admin', 'premium','user']), async (req, res) => 
 });
 
 router.post('/:cid/product/:pid', auth(['admin', 'premium','user']), addProductInCart);
-router.delete('/:cid/products/:pid', auth(['admin', 'premium','user']), deleteProductsInCart);
+router.delete('/:cid/product/:pid', auth(['admin', 'premium','user']), deleteProductsInCart);
 router.post('/:cid/purchase', auth(['premium','user']), createTicket);
 
 router.get('/mockingproducts', (req, res) => {

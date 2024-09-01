@@ -70,7 +70,7 @@ describe('Products API', () => {
         const res = await request.put(`/api/products/${idProducto}`)
             .send(updatedData)
             .set('Authorization', `Bearer ${token}`);
-
+            console.log(idProducto, "PRODUCTO EN UPDATE")
         expect(res.status).to.equal(200);
         expect(res.body).to.have.property('_id', idProducto);
         expect(res.body.title).to.equal(updatedData.title);
@@ -80,7 +80,7 @@ describe('Products API', () => {
 
         const res = await request.delete(`/api/products/${idProducto}`)
             .set('Authorization', `Bearer ${token}`);
-
+        console.log(idProducto, "PRODUCTO EN DELETE")
         expect(res.status).to.equal(200);
     });
 
