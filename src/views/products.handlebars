@@ -1,80 +1,76 @@
-<div>
+<section class="products-content">
     <h3>Lista de productos:</h3>
-
-    <table>
-        <thead>
-            <tr>
-                <th>Título</th>
-                <th>Descripción</th>
-                <th>Precio</th>
-                <th>Código</th>
-                <th>Stock</th>
-                <th>Categoría</th>
-                <th>Status</th>
-                <th>Imagen</th>
-            </tr>
-        </thead>
-        <tbody>
+    <a href="/cart/{{userDTO.cart}}" class="ruta">Ir al carrito</a>
+        <section class="cards-section">
             {{#each result.payload}}
-            <tr>
-                <td>{{this.title}}</td>
-                <td>{{this.description}}</td>
-                <td>{{this.price}}</td>
-                <td>{{this.code}}</td>
-                <td>{{this.stock}}</td>
-                <td>{{this.category}}</td>
-                <td>{{#if this.status}}Activo{{else}}Desactivado{{/if}}</td>
-                <td>
-                    {{#if this.thumbnails.length}}
-                    <a href="{{this.thumbnails.[0]}}" target="_blank">{{this.thumbnails.[0]}}</a>
-                    {{else}}
-                    No hay Imagen
-                    {{/if}}
-                </td>
-                <td>
-                    <button onclick="addToCart('{{this._id}}')">Agregar al carrito</button>
-                </td>
-            </tr>
-            {{/each}}
-        </tbody>
-    </table>
+            <x-card>
+                <div>
+                    <p><b>Producto:</b> {{this.id}}</p>
+                    <p><b>Producto:</b> {{this._id}}</p>
+                    <p><b>Producto:</b> {{this.title}}</p>
+                    <p><b>Descripción:</b> {{this.description}}</p>
+                    <p><b>Precio:</b> {{this.price}}</p>
+                    <p><b>Codigo:</b> {{this.code}}</p>
+                    <p><b>Stock:</b> {{this.stock}}</p>
+                    <p><b>Categoria:</b> {{this.category}}</p>
+                    <p><b>Estado:</b> {{#if this.status}}Activo{{else}}Desactivado{{/if}}</p>
+                    <p>
+                        {{#if this.thumbnails.length}}
+                        <a href="{{this.thumbnails.[0]}}" target="_blank">{{this.thumbnails.[0]}}</a>
+                        {{else}}
+                        No hay Imagen
+                        {{/if}}
+                    </p>
+                    <button onclick="addToCart('{{this._id}}')" class="ruta">Agregar al carrito</button>
 
-    <div class="pagination">
-        <span>Limite por página: {{result.limit}}</span><br>
+                    
+                </div>
+            </x-card>
+            {{/each}}
+        </section>
+    
+    <script>
+        async function addToCart(productId) {
+    const cartId = "{{userDTO.cart}}";  
+
+    try {
+        const response = await fetch(`/api/carts/${cartId}/product/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            alert('Producto agregado al carrito!');
+        } else {
+            const errorData = await response.json();
+            alert(`Error: ${errorData.msg}`);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor.');
+    }
+}
+    </script>
+    
+
+    <section class="pagination">
+        <span>Limite por página: {{result.limit}}</span>
         {{#if result.query}}
-        <span>Filtrado por: {{result.query}}</span><br>
+        <span>Filtrado por: {{result.query}}</span>
         {{else}}
         Nada
         {{/if}}
         
         {{#if result.hasPrevPage}}
-        <a href="?page={{result.prevPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Anterior</a>
+        <a class="ruta" href="?page={{result.prevPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Anterior</a>
         {{/if}}
 
         <span>Página {{result.page}} de {{result.totalPages}}</span>
 
         {{#if result.hasNextPage}}
-        <a href="?page={{result.nextPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Siguiente</a>
+        <a class="ruta" href="?page={{result.nextPage}}&limit={{result.limit}}{{#if result.query}}&query={{result.query}}{{/if}}">Página Siguiente</a>
         {{/if}}
-    </div>
-</div>
-
-<script>
-    function addToCart(productId) {
-        console.log(`Objeto con id ${productId} agregado al carrito`);
-        const idCartTEST = "6640d10f072c6b087155895c";
-        fetch(`/api/carts/${idCartTEST}/product/${productId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            }
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-        })
-        .catch(error => {
-            console.log('Error al realizar el POST', error);
-        });
-    }
-</script>
+    </section>
+</section>

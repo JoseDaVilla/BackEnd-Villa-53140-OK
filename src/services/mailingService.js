@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 export const sendEmail = async (to, subject, html) => {
     try {
         const info = await transporter.sendMail({
-            from: config.USER,
+            from: config.EMAIL_USER,
             to,
             subject,
             html,

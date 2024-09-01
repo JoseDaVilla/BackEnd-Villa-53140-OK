@@ -4,7 +4,7 @@ import { cartModel } from "../dao/models/carts.js";
 class CartRepository {
     async getCartById(cid) {
         try {
-            return await cartModel.findById(cid);
+            return await cartModel.findById(cid).populate('products.id').lean();
         } catch (error) {
             logger.error('CartRepository.getCartById => ', error);
             throw error;
@@ -41,8 +41,10 @@ class CartRepository {
         try {
             const cart = await cartModel.findById(cid);
             if (!cart) return null;
+            console.log(cart)
 
             const productIndex = cart.products.findIndex(p => p.id.toString() === pid);
+            console.log(productIndex)
             if (productIndex === -1) return null;
 
             cart.products.splice(productIndex, 1);

@@ -7,6 +7,7 @@ import { CustomError } from "../../utils/customError.js";
 import { ERROR_TYPES } from "../../utils/errorTypes.js";
 import logger from "../../config/logger.js";
 
+
 export const createTicket = async (req = request, res = response) => {
     const { cid } = req.params;
     const user = req.user;
@@ -36,8 +37,8 @@ export const createTicket = async (req = request, res = response) => {
         let totalPrice = 0;
         const ticketProducts = [];
         const notProcessedProducts = [];
+        let productDetailsHtml = "";
 
-    
         for (const item of cart.products) {
             logger.debug("Procesando producto en el carrito", item);
 
@@ -48,7 +49,7 @@ export const createTicket = async (req = request, res = response) => {
                 if (!product) {
                     logger.warn(`Producto con id ${item.id._id} no encontrado`);
                     notProcessedProducts.push(item.id._id);
-                    continue; 
+                    continue;
                 }
 
                 logger.debug("Producto encontrado", product);
@@ -59,7 +60,6 @@ export const createTicket = async (req = request, res = response) => {
 
                     const price = product.price;
                     totalPrice += price * quantity;
-
 
                     ticketProducts.push({
                         productId: product._id,
@@ -76,6 +76,13 @@ export const createTicket = async (req = request, res = response) => {
                         title: product.title,
                         description: product.description,
                     });
+
+                    // Agregar detalles del producto al cuerpo del correo electrónico
+                    productDetailsHtml += `
+                        <p><b>${product.title}</b></p>
+                        <p>Descripción: ${product.description}</p>
+                        <p>Precio unitario: ${price.toFixed(2)} (Cantidad: ${quantity})</p>
+                        <hr>`;
                 } else {
                     logger.warn(`Producto con id ${item.id._id} no tiene suficiente stock`);
                     notProcessedProducts.push(item.id._id);
@@ -96,7 +103,6 @@ export const createTicket = async (req = request, res = response) => {
             );
         }
 
-
         const newTicket = new ticketModel({
             user: user._id,
             cart: cid,
@@ -104,16 +110,26 @@ export const createTicket = async (req = request, res = response) => {
             products: ticketProducts
         });
 
-
         await newTicket.save();
 
-        logger.debug("Ticket creado y guardado en la base de datos", newTicket);
+        logger.debug(`Ticket creado y guardado en la base de datos ${newTicket}`);
 
         cart.products = cart.products.filter(item => notProcessedProducts.includes(item.id._id));
         await cart.save();
 
         logger.debug("Carrito actualizado después de crear el ticket", cart);
-        
+
+        const subject = 'Confirmación de compra';
+        const html = `
+            <p>Estimado/a <b>${user.nombre}</b>,</p>
+            <p>Usted ha realizado una compra exitosa. A continuación se detallan los productos adquiridos:</p>
+            ${productDetailsHtml}
+            <p><b>Total: ${totalPrice.toFixed(2)}</b></p>
+        `;
+
+        await sendEmail(user.email, subject, html);
+        logger.info(`Usuario con correo electronico ${user.email} realizó una compra de manera exitosa.`);
+
         return res.json({ msg: 'Ticket creado y correo enviado correctamente', ticket: newTicket, notProcessedProducts });
     } catch (error) {
         logger.error('Error al crear el ticket:', error);

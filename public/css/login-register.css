@@ -1,50 +1,164 @@
-body{
+body {
     align-items: center;
     justify-content: center;
+
 }
 
-.registro{
+:root {
+    --formsBg:#e3e5d7 ;
+    --formsButtons:#a5c8ca ;
+    --formsButtonsHover:#586875 ;
+    --formsInputs: ;
+    --formsShadow1:#e3e5d7 ;
+    --formsShadow2: #bdd6d2;
+}
+
+.registro {
+    font-weight: 500;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    background-color: rgb(251, 231, 207);
+    background-color: var(--formsBg);
     border-radius: 10px;
-    padding: 20px;
-    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
-
+    padding: 30px;
+    box-shadow: 0 8px 16px 8px var(--formsShadow1), 0 4px 8px var(--formsShadow2);
+    animation: bgAnimated infinite ease-in-out 1s alternate;
 }
 
-.registro form{
+@keyframes bgAnimated {
+    0% {
+        box-shadow: 0 8px 16px 8px var(--formsShadow1), 0 4px 8px var(--formsShadow2);
+    }
+
+    100% {
+        box-shadow: 0 8px 16px  var(--formsShadow1), 0 4px 8px var(--formsShadow2);
+    }
+}
+
+.registro form {
 
     display: flex;
     flex-direction: column;
-    align-items:center ;    
+    align-items: center;
     width: max-content;
 }
 
-.registro form input{
-    width: max-content;
+.registro form input {
+    width: 100%;
     padding: 12px;
-    margin: 10px;
-    border: none;
-    border-radius: 10px;
-    background-color: rgb(252, 247, 241);
-    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.2);
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid var(--formsButtons);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
 }
 
-.registro a{
-    color: black;
+.registro a {
+    color: rgb(0, 0, 0);
+    padding: 14px 20px;
     text-decoration: none;
-    margin: 15px;
-    background-color: rgba(175, 150, 65, 0.348);
-    padding: 10px;
+    border: none;
     border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
-.registro button{
-    margin: 15px;
-    background-color: rgba(175, 150, 65, 0.348);
-    padding-inline: 25px;
+.registro a:hover {
+    color: var(--formsButtonsHover);
+}
+
+.registro button {
+    width: 100%;
+    background-color: var(--formsButtons);
+    color: white;
+    padding: 14px 20px;
+    margin: 10px 0;
+    border: none;
     border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+    transition-duration: .1s;
+}
+
+.registro button:hover {
+    background-color: var(--formsButtonsHover);
+}
+
+.register-button {
+    width: 100%;
+    background-color: var(--formsButtons);
+    color: white;
+    padding: 14px 20px;
+    margin: 10px ; 
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.register-button:hover {
+    background-color:var(--formsButtonsHover);
+}
+
+.reset-password {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: max-content;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--formsBg);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 8px 16px 8px var(--formsShadow1), 0 4px 8px var(--formsShadow2);
+    animation: bgAnimated infinite ease-in-out 1s alternate;
+}
+
+.reset-password button {
+    width: 100%;
+    background-color: var(--formsButtons);
+    color: white;
+    padding: 14px 20px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.reset-password button:hover {
+    background-color: var(--formsButtonsHover);
+}
+
+.reset-password form input {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid var(--formsBg);
+    background-color: none;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 16px;
+}
+
+.registro {
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    background-color: var(--formsBg);
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 8px 16px 8px var(--formsShadow1), 0 4px 8px var(--formsShadow2);
+    animation: bgAnimated infinite ease-in-out 1s alternate;
 }

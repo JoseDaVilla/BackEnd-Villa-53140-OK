@@ -49,8 +49,9 @@ export const deleteProductsInCart = async (req = request, res = response) => {
         logger.debug(`deleteProductsInCart => cid: ${cid}, pid: ${pid}`);
         const carrito = await deleteProductsInCartService(cid, pid);
         let msgOk = `The product with id ${pid} was successfully deleted`;
-        if (carrito)
+        if (carrito){
             return res.json({ carrito, msgOk });
+        }
         return res.status(404).json({ msg: `The cart with id ${cid} does not exist` });
     } catch (error) {
         logger.error('deleteProductsInCart => ', error);

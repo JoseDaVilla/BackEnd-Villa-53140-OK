@@ -3,6 +3,10 @@ import { getProductsService } from "../services/productsManagerDBService.js"
 import { getCartByIdService } from "../services/cartsServiceDB.js"
 import { auth } from "../middleware/auth.js"
 import { generateMockProducts } from "../services/mockingProducts.js"
+import cartRepository from "../repository/cartRepository.js"
+import UserDTO from "../dao/DTOs/sessionsDTO.js"
+import { addProductInCart, deleteProductsInCart } from "../dao/controllers/mongoCartsManager.js"
+import { createTicket } from "../dao/controllers/ticketController.js"
 
 
 
@@ -19,26 +23,31 @@ router.get('/realtimeproducts',  (req, res) => {
     return res.render('realTimeProducts')
 })
 
-router.get('/chat',auth(['admin']), (req, res) => {
+router.get('/chat', (req, res) => {
     return res.render('chat')
 })
 
 router.get('/products', async (req, res) => {
     const result = await getProductsService({ ...req.query })
-    return res.render('products', { result })
+    const userDTO = new UserDTO(req.user);
+    return res.render('products', { result, userDTO })
 })
 
-router.get('/cart/:cid', auth(['admin', 'premium','user']),async (req, res) => {
+router.get('/cart/:cid', auth(['admin', 'premium','user']), async (req, res) => {
     const { cid } = req.params;
-    const carrito = await getCartByIdService(cid)
-    return res.render('cart', { carrito })
-})
+    const carrito = await cartRepository.getCartById(cid);
+    const userDTO = new UserDTO(req.user);
+    return res.render('cart', { carrito, userDTO });
+});
+
+router.post('/:cid/product/:pid', auth(['admin', 'premium','user']), addProductInCart);
+router.delete('/:cid/products/:pid', auth(['admin', 'premium','user']), deleteProductsInCart);
+router.post('/:cid/purchase', auth(['premium','user']), createTicket);
 
 router.get('/mockingproducts', (req, res) => {
     const products = generateMockProducts();
     res.json(products);
 });
-
 
 router.get('/registro',(req,res)=>{
 

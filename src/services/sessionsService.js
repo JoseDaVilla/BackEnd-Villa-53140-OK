@@ -4,9 +4,10 @@ import UserDTO from "../dao/DTOs/sessionsDTO.js";
 import sessionsRepository from "../repository/sessionsRepository.js";
 import crypto from 'crypto';
 import bcrypt from 'bcrypt'
-import { sendPasswordResetEmail } from "./mailingService.js";
+import { sendEmail, sendPasswordResetEmail } from "./mailingService.js";
 import fs from 'fs';
 import path from 'path';
+import { userModel } from "../dao/models/user.model.js";
 
 export const login = async (req, res) => {
     try {
@@ -235,3 +236,47 @@ export const deleteUser = async (req, res) => {
     }
 };
 
+export const getAllUsers = async(req,res)=>{
+    try {
+        const allUsers = await sessionsRepository.get()
+        res.json(allUsers);
+    } catch (error) {
+        logger.error("Error al obtener usuarios - Error al obtener usuarios -", error);
+        res.status(500).json({ error: 'Error al obtener usuarios' });
+    }
+}
+
+export const deleteInactiveUsers = async (req, res) => {
+    const twoDaysAgo = new Date();
+    twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+
+    const fiveMinutesAgo = new Date();
+    fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 1);
+
+    try {
+        const usersToDelete = await userModel.find({
+            rol: { $ne: 'admin' },
+            last_connection: { $lt: twoDaysAgo }
+            // last_connection: { $lt: fiveMinutesAgo }
+        });
+
+
+        await userModel.deleteMany({
+            _id: { $in: usersToDelete.map(user => user._id) }
+        });
+
+
+        usersToDelete.forEach(async (user) => {
+            const subject = 'Cuenta eliminada por inactividad';
+            const html = `<p>Estimado/a <b>${user.nombre}</b>,</p>
+                            <p><b> Tu cuenta ha sido eliminada debido a inactividad durante los últimos 2 días.</b></p>`;
+            await sendEmail(user.email, subject, html);
+            logger.info(`Usuarios con correo electronico ${user.email} han sido eliminados por inactividad. Correo electronico ha sido enviado`)
+        });
+
+        res.status(200).send({ message: 'Usuarios inactivos eliminados y correos enviados.' });
+    } catch (error) {
+        logger.error('Error al eliminar usuarios inactivos: ', error);
+        res.status(500).send({ error: 'Error al eliminar usuarios inactivos.' });
+    }
+};
