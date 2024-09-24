@@ -1,4 +1,4 @@
-E-commerce Product Manager
+*E-commerce Product Manager*
 Technologies: Node.js, Express, MongoDB, Passport, Swagger, Mongoose, Express Handlebars, Socket.io, Bcrypt, Multer, Nodemailer, Winston, Mocha, Chai, Supertest, and more.
 
 This E-commerce Product Manager is a robust platform designed for comprehensive product management. It includes features such as user authentication, role-based access control, and CRUD operations for users, products, and carts.
